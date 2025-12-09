@@ -1,1 +1,2 @@
 # Ideathon project
+Objective: As this platform is currently in its prototype stage, the goal is to create a digital AgroPharma solution that uses AI detection and expert consultation to provide farmers with fast and accurate crop diagnosis. The prototype aims to offer reliable treatment advice, precise dosage guidance, leaf-health insights, and easy access to recommended agricultural inputs—all in one place—to reduce crop loss, improve productivity, and enhance farmer income.
