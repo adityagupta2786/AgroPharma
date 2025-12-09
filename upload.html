@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgroPharma — Register Your Crop Problem</title>
+
+<style>
+  *,*::before,*::after { box-sizing:border-box; }
+
+  body {
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background:#f4f8f5;
+    color:#143b16;
+  }
+
+  /* NAVBAR */
+  .navbar {
+    width:100%;
+    padding:18px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#2e7d32;
+    color:white;
+  }
+  .logo {
+    display:flex;gap:10px;align-items:center;
+    font-size:21px;font-weight:800;
+  }
+  .nav-btn {
+    background:white;color:#2e7d32;
+    padding:10px 14px;border-radius:8px;
+    text-decoration:none;font-weight:700;
+  }
+  .nav-btn:hover { background:#e8f3ea; }
+
+  /* MAIN CARD */
+  .container {
+    max-width:780px;
+    margin:28px auto;
+    background:white;
+    padding:24px;
+    border-radius:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.06);
+  }
+  h1 {
+    text-align:center;
+    margin-top:0;
+    color:#2e7d32;
+    font-size:26px;
+  }
+
+  label {
+    font-weight:700;
+    color:#2e7d32;
+    margin-top:18px;
+    display:block;
+  }
+  input[type="text"], textarea, input[type="file"] {
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    font-size:15px;
+    border:1px solid #c7d6cc;
+    border-radius:8px;
+    background:#f9fff8;
+  }
+  textarea { resize:vertical; min-height:80px; }
+
+  /* Two-column row */
+  .row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:8px;
+  }
+  .desc-col { flex:1 1 320px; }
+
+  .voice-controls {
+    flex:0 0 180px;
+    min-width:160px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .btn, .btn-sec {
+    padding:10px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+    border:none;
+  }
+  .btn {
+    background:#2e7d32;
+    color:white;
+  }
+  .btn-sec {
+    background:#eef5ee;
+    border:1px solid #d5e9d6;
+    color:#235023;
+  }
+
+  .btn:disabled, .btn-sec:disabled { opacity:0.5; cursor:not-allowed; }
+
+  #result {
+    margin-top:18px;
+    padding:12px;
+    border-radius:8px;
+    background:#eaf8eb;
+    color:#2e7d32;
+    font-weight:600;
+    display:none;
+  }
+
+  .small { font-size:13px;color:#476b45;margin-top:6px; }
+
+  #imgPreview img {
+    max-width:260px;
+    border-radius:10px;
+    margin-top:10px;
+    border:1px solid #ddd;
+  }
+
+  audio { width:100%; margin-top:10px; }
+
+  @keyframes blink {
+    0%{opacity:1} 50%{opacity:0.2} 100%{opacity:1}
+  }
+  .rec-indicator {
+    width:10px;height:10px;border-radius:50%;
+    background:red;display:inline-block;margin-right:6px;
+    animation:blink 1s infinite;
+  }
+
+  @media(max-width:700px){
+    .voice-controls { flex:1 1 100%; flex-direction:row; }
+    .btn-sec, .btn { flex:1; }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">🌿AgroPharma</div>
+  <a href="index.html" class="nav-btn">Home</a>
+</nav>
+
+<!-- MAIN FORM CONTAINER -->
+<div class="container">
+  <h1>Register Your Crop Problem</h1>
+
+  <form id="uploadForm">
+
+    <label>Your Name</label>
+    <input type="text" name="name" placeholder="Aditya Gupta">
+
+    <label>Short Description (type or speak)</label>
+
+    <div class="row">
+      <!-- Description Box -->
+      <div class="desc-col">
+        <textarea name="description" id="description"
+        placeholder="write soil,climate type and describe the disease."></textarea>
+
+        <div class="small">
+          Transcript: <span id="transcriptText">—</span>
+        </div>
+      </div>
+
+      <!-- Voice Controls -->
+      <div class="voice-controls">
+        <button type="button" id="recBtn" class="btn-sec">🎤 Record</button>
+        <button type="button" id="stopBtn" class="btn-sec" disabled>■ Stop</button>
+        <button type="button" id="playBtn" class="btn" disabled>▶ Play</button>
+
+        <div id="recStatus" class="small">Not recording</div>
+      </div>
+    </div>
+
+    <label>Photo of Plant</label>
+    <input type="file" id="photoInput" accept="image/*">
+
+    <div id="imgPreview"></div>
+
+    <button type="submit" class="btn" style="margin-top:20px;width:100%;">
+      Submit Case
+    </button>
+  </form>
+
+  <div id="result">Your case has been submitted successfully (Prototype Mode)</div>
+
+</div>
+
+<!-- ================= JS SECTION =================== -->
+<script>
+let mediaRecorder, audioChunks = [], audioBlob, audioUrl, audioPlayer;
+const recBtn = document.getElementById("recBtn");
+const stopBtn = document.getElementById("stopBtn");
+const playBtn = document.getElementById("playBtn");
+const transcriptText = document.getElementById("transcriptText");
+const recStatus = document.getElementById("recStatus");
+
+/* ========== SPEECH TO TEXT ========== */
+let recognition = null;
+if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = "hi-IN";
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    let text = "";
+    for (let i = 0; i < e.results.length; i++) {
+      text = e.results[i][0].transcript;
+    }
+    transcriptText.textContent = text || "—";
+    if (!description.value.trim()) description.value = text;
+  };
+}
+
+/* ========== START RECORDING ========== */
+recBtn.onclick = async () => {
+  audioChunks = [];
+  recBtn.disabled = true;
+  stopBtn.disabled = false;
+
+  recStatus.innerHTML = "<span class='rec-indicator'></span>Recording...";
+
+  if (recognition) recognition.start();
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+  mediaRecorder = new MediaRecorder(stream);
+
+  mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+
+  mediaRecorder.onstop = () => {
+    audioBlob = new Blob(audioChunks, { type:"audio/webm" });
+    audioUrl = URL.createObjectURL(audioBlob);
+
+    if (!audioPlayer) {
+      audioPlayer = document.createElement("audio");
+      audioPlayer.controls = true;
+      document.querySelector(".container").appendChild(audioPlayer);
+    }
+    audioPlayer.src = audioUrl;
+
+    playBtn.disabled = false;
+    recStatus.textContent = "Recording saved";
+  };
+
+  mediaRecorder.start();
+};
+
+/* ========== STOP RECORDING ========== */
+stopBtn.onclick = () => {
+  mediaRecorder.stop();
+  stopBtn.disabled = true;
+  recBtn.disabled = false;
+  recStatus.textContent = "Processing...";
+
+  if (recognition) recognition.stop();
+};
+
+/* ========== PLAY AUDIO ========== */
+playBtn.onclick = () => audioPlayer && audioPlayer.play();
+
+/* ========== IMAGE PREVIEW ========== */
+document.getElementById("photoInput").addEventListener("change", function(){
+  const file = this.files[0];
+  const prev = document.getElementById("imgPreview");
+  prev.innerHTML = "";
+  if (file){
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    prev.appendChild(img);
+  }
+});
+
+/* ========== PROTOTYPE SUBMISSION ========== */
+document.getElementById("uploadForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  // show success message (no backend used)
+  document.getElementById("result").style.display = "block";
+  document.getElementById("result").innerText =
+    "Your case has been submitted! (Prototype Mode — No backend)";
+
+  // reset form for prototype
+  this.reset();
+  transcriptText.textContent = "—";
+});
+</script>
+
+</body>
+</html>
+

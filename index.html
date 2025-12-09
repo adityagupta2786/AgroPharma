@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AgroPharma — Prototype</title>
+
+  <style>
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    background: #f4f8f5;
+    color: #163a13;
+    line-height: 1.4;
+}
+.navbar {
+    width: 100%;
+    padding: 24px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2e7d32;
+    color: #fff;
+    position: relative;
+    z-index: 20;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.nav-btn {
+    background: #fff;
+    color: #2e7d32;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.nav-btn:hover {
+    background: #e8f3ea;
+}
+.hero-wrap {
+    max-width: 1200px;
+    margin: 28px auto;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.07);
+}
+
+.hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 340px;
+    background: #eaf7ef;
+}
+.slides {
+    position: absolute;
+    inset: 0;
+    display: block;
+}
+.slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 900ms ease-in-out;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.slide.visible {
+    opacity: 1;
+    z-index: 2;
+}
+
+.slide .left {
+    overflow: hidden;
+}
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.02);
+    transform-origin: center;
+    transition: transform 10s linear;
+}
+
+.slide.visible img {
+    transform: scale(1.02);
+}
+.right {
+    padding: 44px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(200,246,233,0.85);
+}
+.quote {
+    font-size: 20px;
+    font-weight: 600;
+    color: #163a13;
+    margin: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .6s ease, transform .6s ease;
+}
+.meta {
+    margin-top: 8px;
+    color: #2f5c3c;
+    font-size: 14px;
+    opacity: 0.92;
+}
+
+.cta-row {
+    margin-top: 18px;
+    display: flex;
+    gap: 12px;
+}
+.slide.visible .quote {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.08s;
+}
+
+.slide.visible .meta {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.12s;
+}
+.controls {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.9);
+    border: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+.dots {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    gap: 8px;
+    z-index: 6;
+}
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.18);
+    cursor: pointer;
+    border: 0;
+}
+.dot.active {
+    background: #2e7d32;
+}
+.slide .left,
+.slide .right {
+    min-height: 320px;
+}
+@media (max-width: 900px) {
+
+    .hero {
+        grid-template-columns: 1fr;
+        min-height: 420px;
+    }
+    .slide {
+        grid-template-columns: 1fr;
+    }
+    .right {
+        padding: 22px;
+    }
+    .controls {
+        left: 8px;
+        flex-direction: row;
+        gap: 8px;
+        top: auto;
+        bottom: 12px;
+        transform: none;
+    }
+    .arrow {
+        width: 38px;
+        height: 38px;
+    }
+    .dots {
+        right: 12px;
+        bottom: 12px;
+    }
+}
+.page-fade {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .7s ease, transform .7s ease;
+}
+.page-fade.ready {
+    opacity: 1;
+    transform: none;
+}
+.content {
+  max-width: 1100px;
+  margin: 28px auto;
+  padding: 28px 18px;
+}
+.content .section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 26px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  margin-bottom: 18px;
+}
+.content h2 {
+  font-size: 26px;
+  margin: 0 0 12px 0;
+  color: #143b16;
+}
+.content p {
+  font-size: 16px;
+  color: #2f5440;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+.feature {
+  background: #f1fbf6;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: left;
+}
+.feature h3 { margin: 0 0 8px 0; font-size:16px; color:#155a34; }
+.feature p { margin:0; font-size:14px; color:#356c48; }
+
+.site-footer {
+  text-align:center;
+  color:#6a7f6c;
+  font-size:14px;
+  margin-top: 12px;
+  padding: 20px 8px;
+}
+@media (max-width:900px){
+  .features { grid-template-columns: 1fr; }
+  .content { padding:18px 12px; }
+}
+.navbar {
+    background: #2e7d32;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav-right {
+    display: flex;
+    gap: 15px;
+}
+.nav-btn {
+    text-decoration: none;
+    padding: 8px 10px;
+    background: #ffffff;
+    border-radius: 6px;
+    color: #2e7d32;
+    font-weight: bold;
+    transition: 0.2s ease;
+}
+.nav-btn:hover {
+    background: #d6dbd1;
+}
+  </style>
+</head>
+<body>
+  <header class="navbar" role="banner">
+    <div class="logo"><span style="font-size:20px"></span>🌿AgroPharma</div>
+   <div class="nav-right">
+        <a href="#" class="nav-btn">Products</a>
+        <a href="#" class="nav-btn">Help</a>
+    </div>
+  </header>
+
+  <section class="hero-wrap page-fade" id="heroWrap" aria-label="Hero carousel">
+    <div class="hero" role="region" aria-roledescription="carousel">
+\
+      <div class="controls" aria-hidden="false">
+        <button class="arrow" id="prevBtn" aria-label="Previous slide">‹</button>
+        <button class="arrow" id="nextBtn" aria-label="Next slide">›</button>
+      </div>
+
+      <div class="slides" id="slides">
+        <div class="slide" data-index="0" role="group" aria-roledescription="slide" aria-label="Slide 1">
+          <div class="left"><img src="hero1.png" alt="Farmer in field using phone"></div>
+          <div class="right">
+            <p class="quote">“With the AgroPharma app prototype, you get quick guidance about your sick crop without needing a professional agricultural expert on your field.”</p>
+            <div class="meta"><strong>Madhupal Lakshmipoor</strong><br>Farmer — India</div>
+            <div class="cta-row" style="margin-top:16px">
+              <a href="upload.html" class="nav-btn" style="background:#2e7d32;color:#fff;text-decoration:none">Register Problem</a>
+              <a class="nav-btn" href="#" style="background:#fff;color:#2e7d32;text-decoration:none;border-radius:8px;">Learn more</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide" data-index="1" role="group" aria-roledescription="slide" aria-label="Slide 2">
+          <div class="left"><img src="hero2.png" alt="Hands holding a leaf"></div>
+          <div class="right">
+            <p class="quote">“Upload a photo and short voice note — our tool gives an instant suggestion and expert support if needed.”</p>
+            <div class="meta"><strong>Kamla Devi</strong><br>Farmer — Maharashtra</div>
+            <div class="cta-row" style="margin-top:16px">
+              <a href="upload.html" class="nav-btn" style="background:#2e7d32;color:#fff;text-decoration:none">Register Problem</a>
+              <a class="nav-btn" href="#" style="background:#fff;color:#2e7d32;text-decoration:none;border-radius:8px;">How it works</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide" data-index="2" role="group" aria-roledescription="slide" aria-label="Slide 3">
+          <div class="left"><img src="hero3.png" alt="Field view with crops"></div>
+          <div class="right">
+            <p class="quote">“Simple, trusted, and built for rural farmers — AgroPharma helps reduce crop loss and improve yields.”</p>
+            <div class="meta"><strong>Ramesh</strong><br>Farmer — Punjab</div>
+            <div class="cta-row" style="margin-top:16px">
+              <a href="upload.html" class="nav-btn" style="background:#2e7d32;color:#fff;text-decoration:none">Register Problem</a>
+              <a class="nav-btn" href="#" style="background:#fff;color:#2e7d32;text-decoration:none;border-radius:8px;">Partners</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dots" id="dots" aria-hidden="false" aria-label="Slide selection"></div>
+
+    </div>
+  </section>
+
+  <main class="content">
+    <section class="section">
+      <h2>About AgroPharma</h2>
+      <p>
+        AgroPharma is a simple tool for farmers to get fast, expert-backed help for sick crops.
+        Farmers upload a photo, optionally add a short voice note, and receive a suggested diagnosis
+        and recommended treatments.
+      </p>
+
+      <p>
+        Our goal is to reduce crop loss and save time. The platform connects quick AI-assisted suggestions
+        with a network of agronomy experts who can provide follow-up advice when needed.
+      </p>
+    </section>
+    <section class="section">
+      <h2>How it helps farmers</h2>
+
+      <div class="features">
+        <div class="feature">
+          <h3>Easy Upload</h3>
+          <p>Take a photo or record a short voice note in local language.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Quick Diagnosis</h3>
+          <p>AI provides an instant suggestion; experts review complex cases and reply with treatment steps.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Buy Products</h3>
+          <p>Recommended insecticides and pesticides can be purchased from local retailers through our page.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="text-align:center;">
+      <h2>Try the prototype</h2>
+      <p>
+        Click "Register Problem" to open the upload form and simulate a case submission.
+      </p>
+      <div style="margin-top:12px;">
+        <a href="upload.html" class="nav-btn" style="background:#2e7d32;color:#fff;text-decoration:none;padding:10px 12px;border-radius:10px">Register Problem</a>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      © <span id="year"></span> AgroPharma — Prototype. Built for demo.
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const AUTOPLAY = true;
+      const AUTOPLAY_DELAY = 5500;
+
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const dotsContainer = document.getElementById('dots');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const heroWrap = document.getElementById('heroWrap');
+
+      let active = 0;
+      let timer = null;
+
+      slides.forEach((s,i)=>{
+        const d = document.createElement('button');
+        d.className = 'dot';
+        d.setAttribute('data-index', i);
+        d.setAttribute('aria-label','Go to slide '+(i+1));
+        d.addEventListener('click', ()=>goTo(i,true));
+        dotsContainer.appendChild(d);
+      });
+
+      const dots = Array.from(document.querySelectorAll('.dot'));
+
+      function show(index){
+        slides.forEach((s,i)=>{
+          if(i===index){
+            s.classList.add('visible');
+            s.setAttribute('aria-hidden','false');
+          } else {
+            s.classList.remove('visible');
+            s.setAttribute('aria-hidden','true');
+          }
+        });
+        dots.forEach((d,i)=> d.classList.toggle('active', i===index));
+        active = index;
+      }
+
+      function next(){
+        const n = (active+1) % slides.length;
+        goTo(n);
+      }
+      function prev(){
+        const p = (active-1+slides.length) % slides.length;
+        goTo(p);
+      }
+
+      function goTo(index, fromUser=false){
+        show(index);
+        if(AUTOPLAY){
+          clearTimeout(timer);
+          if(!fromUser) timer = setTimeout(next, AUTOPLAY_DELAY);
+          else timer = setTimeout(next, AUTOPLAY_DELAY); 
+        }
+      }
+      prevBtn.addEventListener('click', ()=>{ prev(); });
+      nextBtn.addEventListener('click', ()=>{ next(); });
+
+      document.addEventListener('keydown',(e)=>{
+        if(e.key==='ArrowRight') next();
+        if(e.key==='ArrowLeft') prev();
+      });
+
+      show(0);
+      if(AUTOPLAY) timer = setTimeout(next, AUTOPLAY_DELAY);
+
+      window.addEventListener('load', ()=> {
+        setTimeout(()=> {
+          heroWrap.classList.add('ready'); 
+        }, 60);
+        setTimeout(()=> document.querySelector('.page-fade').classList.add('ready'), 90);
+      });
+
+      const ariaLive = document.createElement('div');
+      ariaLive.setAttribute('aria-live','polite');
+      ariaLive.style.position='absolute'; ariaLive.style.left='-9999px';
+      document.body.appendChild(ariaLive);
+
+      const obs = new MutationObserver(()=> {
+        ariaLive.textContent = 'Slide ' + (active+1) + ' of ' + slides.length;
+      });
+      obs.observe(document.getElementById('slides'), { attributes: true, childList: false, subtree:true });
+    })();
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
